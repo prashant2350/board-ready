@@ -1,0 +1,442 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>BoardReady Class 10</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<style>
+/* Layout: frosted glass panels floating over soft colour orbs; top nav, then one view at a time */
+:root{
+  --bg:#e9eefb; --orb1:#7aa2ff; --orb2:#ff9ec4; --orb3:#7fe0c3;
+  --fg:#14213d; --muted:#4d5b7a; --accent:#3a5bff; --accent-fg:#fff;
+  --glass:rgba(255,255,255,.52); --glass-strong:rgba(255,255,255,.72); --edge:rgba(255,255,255,.85); --line:rgba(20,33,61,.12);
+  --shadow:0 10px 34px rgba(40,60,120,.16); --good:#12936a;
+  --f-head:'Outfit',system-ui,sans-serif; --f-body:'Inter','Noto Sans Devanagari',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1226; --orb1:#3446c9; --orb2:#8a2c6e; --orb3:#157a6a;
+  --fg:#eaf0ff; --muted:#a3b0d0; --accent:#8aa4ff; --accent-fg:#0d1226;
+  --glass:rgba(255,255,255,.07); --glass-strong:rgba(255,255,255,.13); --edge:rgba(255,255,255,.18); --line:rgba(255,255,255,.14);
+  --shadow:0 10px 34px rgba(0,0,0,.4); --good:#4fd8a8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1226; --orb1:#3446c9; --orb2:#8a2c6e; --orb3:#157a6a;
+  --fg:#eaf0ff; --muted:#a3b0d0; --accent:#8aa4ff; --accent-fg:#0d1226;
+  --glass:rgba(255,255,255,.07); --glass-strong:rgba(255,255,255,.13); --edge:rgba(255,255,255,.18); --line:rgba(255,255,255,.14);
+  --shadow:0 10px 34px rgba(0,0,0,.4); --good:#4fd8a8; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--f-body);min-height:100vh;position:relative;overflow-x:hidden;
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orbs i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.75}
+.orbs i:nth-child(1){width:46vmax;height:46vmax;background:var(--orb1);top:-14vmax;left:-10vmax}
+.orbs i:nth-child(2){width:38vmax;height:38vmax;background:var(--orb2);top:20vh;right:-12vmax}
+.orbs i:nth-child(3){width:34vmax;height:34vmax;background:var(--orb3);bottom:-14vmax;left:22vw}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.glass{background:var(--glass);border:1px solid var(--edge);border-radius:22px;box-shadow:var(--shadow);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
+h1,h2,h3{font-family:var(--f-head);margin:0;text-wrap:balance;line-height:1.15}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px}
+.brand{font:700 20px var(--f-head);letter-spacing:.01em;margin-right:auto}
+.brand small{font:500 11px var(--f-body);color:var(--muted);display:block;letter-spacing:.08em;text-transform:uppercase}
+nav{display:flex;flex-wrap:wrap;gap:6px}
+nav a{padding:8px 14px;border-radius:999px;text-decoration:none;color:var(--fg);font-weight:500;font-size:14px;border:1px solid transparent}
+nav a:hover{background:var(--glass-strong)}
+nav a[aria-current="page"]{background:var(--accent);color:var(--accent-fg)}
+button{font:inherit;color:inherit;cursor:pointer}
+.ghost{background:var(--glass-strong);border:1px solid var(--edge);border-radius:999px;padding:8px 14px;font-size:13px}
+.ghost:hover{border-color:var(--accent)}
+
+.hero{padding:26px;display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center}
+.hero h1{font-size:clamp(26px,4.4vw,40px)}
+.hero p{color:var(--muted);margin:8px 0 0;max-width:56ch}
+.big{display:flex;align-items:center;gap:16px}
+.big b{font:700 44px var(--f-head);font-variant-numeric:tabular-nums}
+.big span{color:var(--muted);font-size:13px;max-width:12ch;line-height:1.3}
+.days{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px}
+.days label{color:var(--muted)}
+input[type=date]{font:inherit;color:var(--fg);background:var(--glass-strong);border:1px solid var(--edge);border-radius:10px;padding:6px 10px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{padding:18px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;min-width:0;transition:transform .2s}
+.card:hover{transform:translateY(-3px)}
+.card .row{display:flex;align-items:center;gap:14px}
+.card h3{font-size:19px}
+.card .meta{color:var(--muted);font-size:13px}
+.ring{flex:none;width:62px;height:62px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7;stroke-linecap:round}
+.ring .tr{stroke:var(--line)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:600 14px var(--f-head);font-variant-numeric:tabular-nums}
+.bar{height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sc,var(--accent));border-radius:9px;transition:width .3s}
+
+.sec-title{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;padding:0 4px}
+.sec-title h2{font-size:24px}
+.sec-title p{margin:0;color:var(--muted);font-size:14px}
+
+.subj-head{padding:22px;display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+.subj-head .ring{width:84px;height:84px}
+.subj-head h1{font-size:30px}
+.subj-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.subj-head .links{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.group{padding:16px 18px}
+.group h3{font-size:16px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px}
+.group h3 span{color:var(--muted);font:500 13px var(--f-body)}
+.ch{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.ch .name{min-width:0;overflow-wrap:anywhere}
+.ch.full .name{color:var(--muted)}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1px solid var(--edge);background:var(--glass);font-size:13px;user-select:none}
+.step input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+.step:has(input:checked){background:var(--accent);color:var(--accent-fg);border-color:transparent}
+.step:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.phase{padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.phase .when{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.phase h3{font-size:20px}
+.phase ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:grid;gap:4px}
+.tag{align-self:flex-start;font-size:12px;padding:3px 10px;border-radius:999px;background:var(--accent);color:var(--accent-fg);font-weight:600}
+.tbl{overflow-x:auto;padding:6px 18px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+
+.qb{padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.qb h3{font-size:18px}.qb p{margin:0;color:var(--muted);font-size:14px}
+.btn{align-self:flex-start;margin-top:auto;display:inline-block;background:var(--accent);color:var(--accent-fg);text-decoration:none;font-weight:600;padding:9px 16px;border-radius:12px;font-size:14px}
+.btn:hover{filter:brightness(1.08)}
+.note{padding:14px 18px;font-size:13.5px;color:var(--muted)}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding:16px 18px;margin:0;list-style:none;counter-reset:s}
+.how li{counter-increment:s;font-size:14px;color:var(--muted)}
+.how li::before{content:"Step " counter(s);display:block;font:600 12px var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+footer{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);padding:0 4px}
+.hi{font-family:'Noto Sans Devanagari',var(--f-body)}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.subj-head .links{margin-left:0}.ch{grid-template-columns:1fr}}
+
+.tabs,.chips{display:none}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;border-radius:20px 20px 0 0;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));grid-template-columns:repeat(5,1fr);gap:2px;background:var(--glass-strong)}
+.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;border-radius:14px;text-decoration:none;color:var(--muted);font-size:11px;font-weight:600}
+.tabs a i{font-style:normal;font-size:19px;line-height:1}
+.tabs a[aria-current="page"]{background:var(--accent);color:var(--accent-fg)}
+.chips{overflow-x:auto;gap:8px;padding:2px 2px 6px;scrollbar-width:none}
+.chips a{flex:none;text-decoration:none}
+.chips a[aria-current="page"]{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+#acct{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth{padding:22px;max-width:440px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:12px}
+.auth-f{display:flex;flex-direction:column;gap:10px}
+.auth input{font:inherit;font-size:16px;color:var(--fg);background:var(--glass-strong);border:1px solid var(--edge);border-radius:12px;padding:12px 14px;width:100%}
+.auth .btn{border:0;text-align:center;align-self:stretch;padding:12px 16px;cursor:pointer}
+.err{color:#e0486f;font-size:13.5px;min-height:18px}
+.auth label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.who{display:flex;align-items:center;gap:14px}.who h2{margin:0}
+.sub{color:var(--muted);font-size:14px}
+.av{width:56px;height:56px;flex:none;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);font:700 22px var(--f-head)}
+#acct img{width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gbtn{min-height:44px;display:flex;justify-content:center}
+.or{text-align:center;color:var(--muted);font-size:13px}
+.err.ok{color:#1f9d6b}
+.danger{color:#e0486f}
+.sch{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.ex{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;padding:16px}
+.ex.next{outline:2px solid var(--accent)}
+.dt{width:66px;height:fit-content;text-align:center;border-radius:16px;border:2px solid var(--sc);background:var(--glass-strong);padding:8px 4px;font-family:var(--f-head);display:flex;flex-direction:column}
+.dt b{font-size:28px;line-height:1}.dt span{font-size:12px;text-transform:uppercase;letter-spacing:.06em}.dt small{font-size:11px;color:var(--muted)}
+.exb{display:flex;flex-direction:column;gap:6px;min-width:0}.exb h3{font-size:19px}
+.exb .meta{color:var(--muted);font-size:13px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.acts .btn{margin-top:0;align-self:auto}
+@media (max-width:820px){
+ nav#nav{display:none}.tabs{display:grid}.chips{display:flex}
+ body{padding-inline:max(12px,env(safe-area-inset-left,0px)) max(12px,env(safe-area-inset-right,0px));padding-block:10px calc(92px + env(safe-area-inset-bottom,0px))}
+ .wrap{gap:14px}
+ header.top{padding:10px 12px;flex-wrap:nowrap}.brand{font-size:18px}
+ .hero{padding:18px;gap:14px}.big b{font-size:36px}
+ .grid,.sch,.phases{grid-template-columns:1fr}
+ .card{padding:16px}
+ input[type=date]{font-size:16px;min-height:40px}
+ .ghost{min-height:40px;display:inline-flex;align-items:center}
+ .subj-head{padding:16px;gap:14px}.subj-head h1{font-size:24px}
+ .subj-head .links{width:100%}.subj-head .links a{flex:1;justify-content:center;text-align:center}
+ .group{padding:12px 14px}
+ .steps{width:100%}.step{flex:1;justify-content:center;min-height:44px;padding:8px 6px}
+ .sec-title h2{font-size:21px}
+ .tbl{padding:4px 8px}table{min-width:420px}th,td{padding:9px 6px;font-size:13px}
+ footer{flex-direction:column;align-items:flex-start}
+ .acts .btn,.acts .ghost{flex:1;text-align:center;justify-content:center}
+}
+@media (max-width:380px){.dt{width:56px}.dt b{font-size:24px}.tabs a{font-size:10px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="orbs" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="wrap">
+  <header class="top glass">
+    <div class="brand">BoardReady<small>CBSE Class 10 · 2027 Boards</small></div>
+    <nav id="nav" aria-label="Main"></nav>
+    <button class="ghost" id="acct" type="button">Log in</button><button class="ghost" id="theme" type="button">Theme</button>
+  </header>
+  <main id="view"></main>
+  <footer>
+    <span id="syncmsg"></span>
+    <span><button class="ghost" id="export" type="button">Copy backup</button> <button class="ghost" id="reset" type="button">Reset progress</button></span>
+  </footer>
+</div>
+<nav id="tabs" class="tabs glass" aria-label="Quick"></nav>
+
+<script>
+const CBSE='https://cbseacademic.nic.in/';
+const SQP='https://cbseacademic.nic.in/SQP_CLASSX_2026-27.html';
+const SCI_SYL='https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Science_SecP1_2026-27.pdf';
+const STAGES=['Study','Practise','Revise'];
+const B='https://cbseacademic.nic.in/web_material/';
+const SYL={hindi:B+'CurriculumMain27/SecPart1/Hindi_A_SecP1_2026-27.pdf',english:B+'CurriculumMain27/SecPart1/English_LL_SecP1_2026-27.pdf',maths:B+'CurriculumMain27/SecPart1/Maths_SecP1X_2026-27.pdf',science:SCI_SYL,it:B+'Curriculum27/Sec/402-IT-X.pdf',sst:B+'CurriculumMain27/SecPart1/SocialScience_SecP1X_2026-27.pdf'};
+const SCHED=[
+['maths','2027-02-17','10:30 AM – 1:30 PM','Mathematics (Standard 041 / Basic 241)'],
+['science','2027-02-22','10:30 AM – 1:30 PM','Science (086)'],
+['it','2027-02-24','10:30 AM – 12:30 PM','Information Technology (402)'],
+['english','2027-02-26','10:30 AM – 1:30 PM','English Language & Literature (184)'],
+['hindi','2027-03-03','10:30 AM – 1:30 PM','Hindi (Course-A 002 / Course-B 085)'],
+['sst','2027-03-08','10:30 AM – 1:30 PM','Social Science (087)']];
+const short=s=>s.id==='it'?'IT':s.id==='maths'?'Maths':s.name==='Social Science'?'Social Sci.':s.name;
+
+const SUBJECTS=[
+{id:'hindi',name:'Hindi',sub:'Course A · क्षितिज, कृतिका, व्याकरण',color:'#e0603a',hi:true,groups:[
+ {t:'क्षितिज भाग 2 · काव्य खंड',i:['पद – सूरदास','राम-लक्ष्मण-परशुराम संवाद – तुलसीदास','सवैया और कवित्त – देव','आत्मकथ्य – जयशंकर प्रसाद','उत्साह और अट नहीं रही है – निराला','यह दंतुरहित मुस्कान और फसल – नागार्जुन','छाया मत छूना – गिरिजाकुमार माथुर','कन्यादान – ऋतुराज','संगतकार – मंगलेश डबराल']},
+ {t:'क्षितिज भाग 2 · गद्य खंड',i:['नेताजी का चश्मा','बालगोबिन भगत','लखनवी अंदाज़','मानवीय करुणा की दिव्य चमक','एक कहानी यह भी','स्त्री शिक्षा के विरोधी कुतर्कों का खंडन','नौबतखाने में इबादत','संस्कृति']},
+ {t:'कृतिका भाग 2',i:['माता का अँचल','साना-साना हाथ जोड़ि','मैं क्यों लिखता हूँ?']},
+ {t:'व्याकरण और लेखन',i:['पद परिचय','रचना के आधार पर वाक्य भेद','वाक्य रूपांतरण','मुहावरे','अपठित गद्यांश और पद्यांश','अनुच्छेद लेखन','औपचारिक पत्र','सूचना और विज्ञापन लेखन']}]},
+{id:'english',name:'English',sub:'Language & Literature · First Flight, Footprints',color:'#8a4fff',groups:[
+ {t:'Reading, Writing and Grammar',i:['Reading: unseen passages (factual, discursive, literary)','Writing: formal letter','Writing: analytical paragraph','Grammar: tenses, modals, subject-verb agreement','Grammar: reported speech, determiners, editing and omission']},
+ {t:'First Flight · Prose',i:['A Letter to God','Nelson Mandela: Long Walk to Freedom','Two Stories about Flying','From the Diary of Anne Frank','Glimpses of India','Mijbil the Otter','Madam Rides the Bus','The Sermon at Benares','The Proposal (play)']},
+ {t:'First Flight · Poetry',i:['Dust of Snow and Fire and Ice','A Tiger in the Zoo','How to Tell Wild Animals','The Ball Poem','Amanda!','The Trees','Fog','The Tale of Custard the Dragon','For Anne Gregory']},
+ {t:'Footprints Without Feet',i:['A Triumph of Surgery','The Thief’s Story','The Midnight Visitor','A Question of Trust','Footprints without Feet','The Making of a Scientist','The Necklace','Bholi','The Book That Saved the Earth']}]},
+{id:'maths',name:'Mathematics',sub:'Standard / Basic · 14 chapters',color:'#2f6bff',groups:[
+ {t:'Number Systems and Algebra',i:['Real Numbers','Polynomials','Pair of Linear Equations in Two Variables','Quadratic Equations','Arithmetic Progressions']},
+ {t:'Geometry and Coordinate Geometry',i:['Triangles','Coordinate Geometry','Circles','Areas Related to Circles','Surface Areas and Volumes']},
+ {t:'Trigonometry',i:['Introduction to Trigonometry','Some Applications of Trigonometry']},
+ {t:'Statistics and Probability',i:['Statistics','Probability']}]},
+{id:'science',name:'Science',sub:'Physics · Chemistry · Biology · 13 chapters',color:'#11a37f',link:SCI_SYL,groups:[
+ {t:'Chemistry',i:['Chemical Reactions and Equations','Acids, Bases and Salts','Metals and Non-metals','Carbon and its Compounds']},
+ {t:'Biology',i:['Life Processes','Control and Coordination','How do Organisms Reproduce?','Heredity','Our Environment']},
+ {t:'Physics',i:['Light: Reflection and Refraction','The Human Eye and the Colourful World','Electricity','Magnetic Effects of Electric Current']}]},
+{id:'it',name:'Information Technology',sub:'Code 402 · Part A skills + Part B units',color:'#e0a21a',groups:[
+ {t:'Part A · Employability Skills',i:['Communication Skills','Self-Management Skills','ICT Skills','Entrepreneurial Skills','Green Skills']},
+ {t:'Part B · Subject Skills',i:['Digital Documentation (Advanced)','Electronic Spreadsheet (Advanced)','Database Management System','Web Applications and Security']},
+ {t:'Practical and Project',i:['Practical file','Portfolio and project','Viva preparation']}]},
+{id:'sst',name:'Social Science',sub:'History · Geography · Political Science · Economics',color:'#d6457f',groups:[
+ {t:'History · India and the Contemporary World II',i:['The Rise of Nationalism in Europe','Nationalism in India','The Making of a Global World','The Age of Industrialisation','Print Culture and the Modern World']},
+ {t:'Geography · Contemporary India II',i:['Resources and Development','Forest and Wildlife Resources','Water Resources','Agriculture','Minerals and Energy Resources','Manufacturing Industries','Lifelines of National Economy','Map work']},
+ {t:'Political Science · Democratic Politics II',i:['Power-sharing','Federalism','Gender, Religion and Caste','Political Parties','Outcomes of Democracy']},
+ {t:'Economics · Understanding Economic Development',i:['Development','Sectors of the Indian Economy','Money and Credit','Globalisation and the Indian Economy','Consumer Rights']}]}
+];
+
+/* ---------- state (browser only) ---------- */
+let S={done:{},exam:'2027-02-17'};
+try{const r=localStorage.getItem('boardready.v1');if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem('boardready.v1',JSON.stringify(S))}catch(e){}if(typeof TOKEN!=='undefined'&&TOKEN){clearTimeout(pushT);pushT=setTimeout(pushNow,700)}};
+const key=(s,c)=>s+'|'+c;
+const get=(s,c)=>S.done[key(s,c)]||[0,0,0];
+const items=s=>s.groups.flatMap(g=>g.i);
+const stat=s=>{const it=items(s);let d=0;it.forEach(c=>get(s.id,c).forEach(v=>d+=v));return{done:d,total:it.length*3,pct:Math.round(d/(it.length*3)*100),full:it.filter(c=>get(s.id,c).every(Boolean)).length,n:it.length}};
+const overall=()=>{let d=0,t=0;SUBJECTS.forEach(s=>{const x=stat(s);d+=x.done;t+=x.total});return Math.round(d/t*100)};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ring=(p,c)=>{const r=26,L=2*Math.PI*r;return`<div class="ring"><svg viewBox="0 0 64 64"><circle class="tr" cx="32" cy="32" r="${r}"/><circle cx="32" cy="32" r="${r}" stroke="${c}" stroke-dasharray="${L}" stroke-dashoffset="${L*(1-p/100)}"/></svg><b>${p}%</b></div>`};
+const daysLeft=()=>{if(!S.exam)return null;const d=Math.ceil((new Date(S.exam+'T00:00:00')-new Date(new Date().toDateString()))/864e5);return isNaN(d)?null:d};
+const fmt=d=>d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+
+/* ---------- views ---------- */
+function home(){
+  const dl=daysLeft();
+  const cards=SUBJECTS.map(s=>{const x=stat(s);return`<a class="card glass" href="#${s.id}" style="--sc:${s.color}">
+    <div class="row">${ring(x.pct,s.color)}<div><h3>${s.name}</h3><div class="meta">${s.sub}</div></div></div>
+    <div class="bar"><i style="width:${x.pct}%"></i></div>
+    <div class="meta">${x.full} of ${x.n} chapters fully revised</div></a>`}).join('');
+  return`<section class="hero glass"><div>
+      <h1>Your complete Class 10 board roadmap</h1>
+      <p>Six subjects, every chapter, three steps each: study it, practise it, revise it. Tick them off and watch the rings fill.</p>
+      <div class="days"><label for="exam">First board exam on</label><input type="date" id="exam" value="${S.exam||''}">
+      <span>${dl==null?'Pick a date to get a countdown.':dl>0?`<b>${dl} days</b> to go`:dl===0?'<b>Exam day.</b> Good luck.':'Date has passed. Update it.'}</span></div></div>
+    <div class="big"><b>${overall()}%</b><span>of the full syllabus done</span></div></section>
+    ${USER?'':`<div class="note glass">Create a free account to save your progress and see it again whenever you log in. <a href="#account">Sign up or log in</a></div>`}
+    <div class="sec-title" style="margin-top:6px"><h2>Subjects</h2><p>Tap a subject to open its chapters</p></div>
+    <div class="grid">${cards}</div>
+    <p class="note glass">Chapter lists follow the NCERT Class 10 books. Always compare with the latest official syllabus on <a href="${CBSE}" target="_blank" rel="noopener">cbseacademic.nic.in</a> before you start, because CBSE can revise topics.</p>`;
+}
+
+function subject(s){
+  const x=stat(s);
+  const groups=s.groups.map(g=>{
+    const gd=g.i.filter(c=>get(s.id,c).every(Boolean)).length;
+    const rows=g.i.map(c=>{const v=get(s.id,c);return`<div class="ch ${v.every(Boolean)?'full':''}"><div class="name ${s.hi?'hi':''}">${esc(c)}</div>
+      <div class="steps">${STAGES.map((st,k)=>`<label class="step"><input type="checkbox" data-s="${s.id}" data-c="${esc(c)}" data-k="${k}" ${v[k]?'checked':''}>${st}</label>`).join('')}</div></div>`}).join('');
+    return`<section class="group glass"><h3 class="${s.hi?'hi':''}">${g.t}<span>${gd}/${g.i.length} done</span></h3>${rows}</section>`}).join('');
+  return`<div class="chips">${SUBJECTS.map(o=>`<a class="ghost" href="#${o.id}" ${o.id===s.id?'aria-current="page"':''}>${short(o)}</a>`).join('')}</div><section class="subj-head glass" style="--sc:${s.color}">${ring(x.pct,s.color)}
+    <div><h1>${s.name}</h1><p>${s.sub}</p><p>${x.full} of ${x.n} chapters fully revised</p></div>
+    <div class="links"><a class="ghost" style="text-decoration:none" href="${SYL[s.id]}" target="_blank" rel="noopener">Detailed syllabus (PDF)</a>
+    <a class="ghost" style="text-decoration:none" href="${SQP}" target="_blank" rel="noopener">Sample papers</a></div></section>${groups}`;
+}
+
+function roadmap(){
+  const dl=daysLeft();
+  let phases;
+  const base=[
+   ['Learn','Cover every chapter once','Read the NCERT chapter, then solve all in-text and exercise questions.|Make short notes and formula or date sheets.|Tick "Study" the day you finish a chapter.',.5],
+   ['Practise','Question-by-question work','Solve NCERT exemplar and chapter-wise questions.|Attempt CBSE sample papers by subject.|Tick "Practise" once you can solve without looking.',.2],
+   ['Revise','Second and third pass','Revise from your own notes only.|Redo the questions you got wrong.|Tick "Revise" when a chapter feels easy.',.2],
+   ['Mock tests','Full papers in exam timing','One full sample paper per day in 3 hours.|Check with the marking scheme and fix weak spots.|Sleep well and keep the last two days light.',.1]];
+  if(dl&&dl>0){let t=new Date(new Date().toDateString()),acc=0;
+    phases=base.map(p=>{const n=Math.max(1,Math.round(dl*p[3]));const a=new Date(t.getTime()+acc*864e5);acc+=n;const b=new Date(t.getTime()+(acc-1)*864e5);return{...p,when:`${fmt(a)} to ${fmt(b)} · ${n} days`}})}
+  else phases=base.map(p=>({...p,when:Math.round(p[3]*100)+'% of your time'}));
+  const rem=SUBJECTS.map(s=>{const x=stat(s);return`<tr><td>${s.name}</td><td>${x.n-x.full}</td><td>${x.n}</td><td>${x.pct}%</td>${dl>0?`<td>${((x.n-x.full)/dl*7).toFixed(1)}</td>`:''}</tr>`}).join('');
+  return`<div class="sec-title"><h2>Roadmap</h2><p>${dl>0?`${dl} days until ${fmt(new Date(S.exam+'T00:00:00'))}. Phases below are scaled to your date.`:'Set your exam date on the Home page to scale this plan to your calendar.'}</p></div>
+  <div class="phases">${phases.map((p,i)=>`<div class="phase glass"><span class="tag">Phase ${i+1}</span><div class="when">${p.when}</div><h3>${p[0]}</h3><div style="color:var(--muted);font-size:14px">${p[1]}</div><ul>${p[2].split('|').map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>
+  <div class="sec-title" style="margin-top:6px"><h2>Where you stand</h2></div>
+  <div class="tbl glass"><table><thead><tr><th>Subject</th><th>Chapters left</th><th>Total</th><th>Progress</th>${dl>0?'<th>Chapters per week needed</th>':''}</tr></thead><tbody>${rem}</tbody></table></div>`;
+}
+
+function qbank(){
+  const subj=SUBJECTS.map(s=>`<a class="ghost" style="text-decoration:none" href="${SQP}" target="_blank" rel="noopener">${s.name}</a>`).join('');
+  return`<div class="sec-title"><h2>Question bank</h2><p>Every paper is hosted by CBSE. These buttons open the official pages.</p></div>
+  <ol class="how glass"><li>Open the sample question papers page.</li><li>Choose your subject (Hindi A, English Language &amp; Literature, Mathematics Standard or Basic, Science, IT 402, Social Science).</li><li>Download both the paper and its marking scheme.</li><li>Solve in 3 hours, then check with the scheme.</li></ol>
+  <div class="grid">
+   <div class="qb glass"><h3>Sample question papers 2026-27</h3><p>Latest SQPs and marking schemes for the 2027 board exam, all subjects.</p><a class="btn" href="${SQP}" target="_blank" rel="noopener">Open on CBSE</a></div>
+   <div class="qb glass"><h3>Syllabus and curriculum</h3><p>Official curriculum PDFs: pattern, marks per unit and internal assessment.</p><a class="btn" href="${CBSE}" target="_blank" rel="noopener">Open CBSE Academic</a></div>
+   <div class="qb glass"><h3>Science curriculum PDF</h3><p>Direct link to the Class 10 Science syllabus for 2026-27.</p><a class="btn" href="${SCI_SYL}" target="_blank" rel="noopener">Open PDF</a></div>
+   <div class="qb glass"><h3>Main CBSE site</h3><p>Date sheets, circulars and notices for board exams.</p><a class="btn" href="https://www.cbse.gov.in/" target="_blank" rel="noopener">Open cbse.gov.in</a></div>
+  </div>
+  <div class="qb glass"><h3>Jump to the sample paper list by subject</h3><div style="display:flex;flex-wrap:wrap;gap:8px">${subj}</div><p>All six open the same CBSE class X page, where each subject has its own paper and marking scheme.</p></div>
+  <p class="note glass">This site only links to CBSE. If a link moves, search "CBSE Academic sample question papers class X" and use the cbseacademic.nic.in result.</p>`;
+}
+
+/* ---------- schedule ---------- */
+function schedule(){
+  const today=new Date(new Date().toDateString());let next=-1;
+  const rows=SCHED.map(([id,d,t,label],i)=>{const s=SUBJECTS.find(x=>x.id===id),dt=new Date(d+'T00:00:00'),n=Math.round((dt-today)/864e5);if(n>=0&&next<0)next=i;
+    const gap=i?Math.round((dt-new Date(SCHED[i-1][1]+'T00:00:00'))/864e5)-1:0;return{s,dt,n,t,label,gap,i,x:stat(s)}});
+  return`<div class="sec-title"><h2>Board exam schedule</h2><p>CBSE Class 10 · 2027 · papers start 10:30 AM</p></div>
+  <div class="sch">${rows.map(r=>`<article class="ex glass ${r.i===next?'next':''}" style="--sc:${r.s.color}">
+    <div class="dt"><b>${r.dt.getDate()}</b><span>${r.dt.toLocaleDateString('en-IN',{month:'short'})}</span><small>${r.dt.toLocaleDateString('en-IN',{weekday:'short'})}</small></div>
+    <div class="exb"><h3>${r.s.name}${r.i===next?' <span class="tag">Next</span>':''}</h3>
+    <div class="meta">${r.label}</div>
+    <div class="meta">${r.t}${r.n>0?` · in ${r.n} day${r.n>1?'s':''}`:r.n===0?' · <b>today</b>':' · done'}${r.gap>0?` · ${r.gap} free day${r.gap>1?'s':''} before it`:''}</div>
+    <div class="bar"><i style="width:${r.x.pct}%"></i></div><div class="meta">${r.x.pct}% prepared</div>
+    <div class="acts"><a class="btn" href="${SYL[r.s.id]}" target="_blank" rel="noopener">Detailed syllabus</a><a class="ghost" style="text-decoration:none" href="#${r.s.id}">Open chapters</a></div></div></article>`).join('')}</div>
+  <p class="note glass">Dates and timings follow the CBSE Class 10 date sheet released in November 2026. IT is a 2-hour paper (10:30 AM to 12:30 PM). CBSE also plans a second board exam window in May 2027. Always confirm on <a href="https://www.cbse.gov.in/" target="_blank" rel="noopener">cbse.gov.in</a>.</p>`;
+}
+
+/* ---------- account + cloud sync (MongoDB via the Node server) ---------- */
+let TOKEN=null,USER=null,pushT=null,authMode='login',GCID=null,gInit=false,NOTICE='';
+try{TOKEN=localStorage.getItem('boardready.token');USER=JSON.parse(localStorage.getItem('boardready.user')||'null')}catch(e){}
+const store=()=>{try{TOKEN?localStorage.setItem('boardready.token',TOKEN):localStorage.removeItem('boardready.token');USER?localStorage.setItem('boardready.user',JSON.stringify(USER)):localStorage.removeItem('boardready.user')}catch(e){}};
+const api=async(p,o={})=>{const r=await fetch('/api'+p,{...o,headers:{'Content-Type':'application/json',...(TOKEN?{Authorization:'Bearer '+TOKEN}:{})}});const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.error||'Something went wrong');e.status=r.status;throw e}return j};
+const msg=t=>{const e=document.getElementById('syncmsg');if(e)e.textContent=t};
+function pushNow(){if(!TOKEN)return;msg('Saving…');api('/progress',{method:'PUT',body:JSON.stringify({done:S.done,exam:S.exam||''})}).then(()=>msg('Progress saved to your account ✓')).catch(e=>{if(e.status===401)logout();else msg('Could not save right now. It will retry on your next tick.')})}
+function logout(){TOKEN=null;USER=null;store();msg('');route()}
+function applyServer(p){if(p&&p.done&&Object.keys(p.done).length){S.done=p.done;if(p.exam)S.exam=p.exam;try{localStorage.setItem('boardready.v1',JSON.stringify(S))}catch(e){}msg('Progress loaded from your account ✓')}else pushNow()}
+const say=(id,t,ok)=>{const e=document.getElementById(id);if(e){e.textContent=t;e.classList.toggle('ok',!!ok)}};
+function account(){
+  if(USER){
+    const av=USER.picture?`<img class="av" src="${esc(USER.picture)}" alt="" referrerpolicy="no-referrer">`:`<span class="av" aria-hidden="true">${esc((USER.name.trim()[0]||'?').toUpperCase())}</span>`;
+    const note=NOTICE?`<div class="note glass">${esc(NOTICE)}</div>`:'';NOTICE='';
+    const showG=USER.hasGoogle||GCID;
+    return`${note}<section class="auth glass"><div class="who">${av}<div><h2>${esc(USER.name)}</h2><div class="sub">${esc(USER.email)}${USER.school?' · '+esc(USER.school):''}</div></div></div>
+    <div class="big"><b>${overall()}%</b><span>of the full syllabus done${USER.target!=null?' · aiming for '+USER.target+'% in boards':''}</span></div>
+    <p class="sub" style="margin:0">Your ticks are saved to your account automatically. Log in on any phone or laptop to continue where you stopped.</p></section>
+    <section class="auth glass"><h2>Profile</h2>
+    <form id="profform" class="auth-f" novalidate>
+      <label>Name<input name="name" value="${esc(USER.name)}" autocomplete="name" required maxlength="60"></label>
+      <label>School (optional)<input name="school" value="${esc(USER.school||'')}" autocomplete="organization" maxlength="80"></label>
+      <label>Target in boards, % (optional)<input name="target" type="number" inputmode="numeric" min="0" max="100" step="1" value="${USER.target==null?'':USER.target}"></label>
+      <div class="err" id="profmsg" role="status"></div><button class="btn" type="submit">Save profile</button></form></section>
+    <section class="auth glass"><h2>Sign-in methods</h2>
+      ${showG?`<div class="row"><b>Google</b>${USER.hasGoogle?`<span class="sub">Connected</span>${USER.hasPassword?'<button class="ghost" id="unlinkg" type="button">Disconnect</button>':''}`:''}</div>${USER.hasGoogle?'':'<div data-gbtn="link" class="gbtn"></div>'}<div class="err" id="gmsg" role="status"></div>`:''}
+      <div class="sub"><b>Password</b> · ${USER.hasPassword?'change it below':'you sign in with Google. Set a password if you also want to log in with your email.'}</div>
+      <form id="pwform" class="auth-f" novalidate><input name="username" value="${esc(USER.email)}" autocomplete="username" hidden>
+        ${USER.hasPassword?'<input name="current" type="password" placeholder="Current password" autocomplete="current-password" required>':''}
+        <input name="next" type="password" placeholder="New password (min 6 characters)" autocomplete="new-password" required>
+        <div class="err" id="pwmsg" role="status"></div><button class="btn" type="submit">${USER.hasPassword?'Change password':'Set password'}</button></form></section>
+    <section class="auth glass"><h2>Account</h2><button class="btn" id="logout" type="button">Log out</button>
+      ${USER.hasPassword?'<input id="delpw" type="password" placeholder="Password (needed to delete)" autocomplete="current-password">':''}
+      <div class="err" id="delmsg" role="alert"></div><button class="ghost danger" id="delacct" type="button">Delete my account</button></section>`;
+  }
+  const su=authMode==='signup';
+  return`<section class="auth glass"><h2>${su?'Create your account':'Log in'}</h2><div class="sub">Save your progress and see it again every time you log in.</div>
+  ${GCID?`<div data-gbtn="${su?'signup':'login'}" class="gbtn"></div><div class="or">or use your email</div>`:''}
+  <form id="authform" class="auth-f" novalidate>${su?'<input name="name" placeholder="Your name" autocomplete="name" required maxlength="60">':''}<input name="email" type="email" placeholder="Email" autocomplete="email" required><input name="password" type="password" placeholder="Password (min 6 characters)" autocomplete="${su?'new-password':'current-password'}" required><div class="err" id="autherr" role="alert"></div><button class="btn" type="submit">${su?'Sign up':'Log in'}</button></form>
+  <button class="ghost" id="swap" type="button">${su?'I already have an account':'New here? Create an account'}</button></section>`;
+}
+/* ---------- Google Identity Services ---------- */
+function renderGoogle(){
+  const els=document.querySelectorAll('[data-gbtn]');
+  if(!els.length||!GCID||!window.google||!google.accounts)return;
+  if(!gInit){google.accounts.id.initialize({client_id:GCID,callback:onGoogle});gInit=true}
+  els.forEach(el=>{const w=Math.max(200,Math.min(el.clientWidth||320,400));google.accounts.id.renderButton(el,{theme:'outline',size:'large',shape:'pill',width:w,text:el.dataset.gbtn==='signup'?'signup_with':'continue_with'})});
+}
+async function onGoogle(r){
+  const linking=!!USER;
+  try{
+    const j=await api(linking?'/profile/google':'/auth/google',{method:'POST',body:JSON.stringify({credential:r.credential})});
+    if(linking){USER=j.user;store();route();say('gmsg','Google connected ✓',1)}
+    else{TOKEN=j.token;USER=j.user;store();applyServer(j.progress);
+      if(j.passwordReset){NOTICE='We linked Google to your existing account and removed its old password for safety. You can set a new password below if you want one.';location.hash='#account'}else location.hash='#home';
+      route()}
+  }catch(x){say(linking?'gmsg':'autherr',x.status?x.message:'Cannot reach the server. Check your connection.')}
+}
+const TABS=[['home','🏠','Home'],['schedule','📅','Schedule'],['roadmap','🗺️','Roadmap'],['question-bank','📝','Papers'],['account','👤','Account']];
+function renderTabs(h){const cur=TABS.some(t=>t[0]===h)?h:'home';document.getElementById('tabs').innerHTML=TABS.map(([id,ic,l])=>`<a href="#${id}" ${id===cur?'aria-current="page"':''}><i aria-hidden="true">${ic}</i>${id==='account'&&USER?esc(USER.name.split(' ')[0]).slice(0,8):l}</a>`).join('')}
+function updateAcct(){const b=document.getElementById('acct');if(!b)return;b.replaceChildren();if(USER&&USER.picture){const i=document.createElement('img');i.src=USER.picture;i.alt='';i.referrerPolicy='no-referrer';b.append(i)}b.append(USER?USER.name.split(' ')[0]:'Log in')}
+const wipeLocal=()=>{S.done={};try{localStorage.removeItem('boardready.v1')}catch(x){}};
+document.addEventListener('click',async e=>{const t=e.target;
+  if(t.id==='swap'){authMode=authMode==='login'?'signup':'login';route()}
+  if(t.id==='acct')location.hash='#account';
+  if(t.id==='logout'){wipeLocal();if(window.google&&google.accounts)google.accounts.id.disableAutoSelect();logout()}
+  if(t.id==='unlinkg'){try{const j=await api('/profile/google',{method:'DELETE'});USER=j.user;store();route();say('gmsg','Google disconnected.',1)}catch(x){say('gmsg',x.status?x.message:'Cannot reach the server.')}}
+  if(t.id==='delacct'){
+    if(!t.dataset.armed){t.dataset.armed=1;t.textContent='Tap again to permanently delete';setTimeout(()=>{delete t.dataset.armed;t.textContent='Delete my account'},4000);return}
+    try{await api('/account',{method:'DELETE',body:JSON.stringify({password:(document.getElementById('delpw')||{}).value||''})});wipeLocal();logout();location.hash='#home';msg('Your account was deleted.')}
+    catch(x){say('delmsg',x.status?x.message:'Cannot reach the server.');delete t.dataset.armed;t.textContent='Delete my account'}
+  }});
+const FORMS={authform:'autherr',profform:'profmsg',pwform:'pwmsg'};
+document.addEventListener('submit',async e=>{const id=e.target.id;if(!FORMS[id])return;e.preventDefault();
+  const f=Object.fromEntries(new FormData(e.target)),b=e.target.querySelector('button[type=submit]');say(FORMS[id],'');b.disabled=true;
+  try{
+    if(id==='authform'){const j=await api(authMode==='signup'?'/signup':'/login',{method:'POST',body:JSON.stringify(f)});TOKEN=j.token;USER=j.user;store();applyServer(j.progress);location.hash='#home';route()}
+    else if(id==='profform'){const j=await api('/profile',{method:'PUT',body:JSON.stringify(f)});USER=j.user;store();route();say('profmsg','Profile saved ✓',1)}
+    else{const j=await api('/password',{method:'PUT',body:JSON.stringify(f)});USER=j.user;store();route();say('pwmsg','Password updated ✓',1)}
+  }catch(x){say(FORMS[id],x.status?x.message:'Cannot reach the server. Check your connection.');b.disabled=false}});
+
+/* ---------- router ---------- */
+const NAV=[['home','Home'],['schedule','Schedule'],...SUBJECTS.map(s=>[s.id,s.name==='Information Technology'?'IT':s.name==='Mathematics'?'Maths':s.name]),['roadmap','Roadmap'],['question-bank','Question bank']];
+function route(){
+  const h=(location.hash||'#home').slice(1);
+  const s=SUBJECTS.find(x=>x.id===h);
+  document.getElementById('nav').innerHTML=NAV.map(([id,l])=>`<a href="#${id}" ${id===h||(!NAV.some(n=>n[0]===h)&&h!=='account'&&id==='home')?'aria-current="page"':''}>${l}</a>`).join('');
+  document.getElementById('view').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">${s?subject(s):h==='roadmap'?roadmap():h==='question-bank'?qbank():h==='schedule'?schedule():h==='account'?account():home()}</div>`;
+  renderTabs(h);updateAcct();renderGoogle();const ex=document.getElementById('exam');if(ex)ex.onchange=e=>{S.exam=e.target.value;save();route()};
+}
+addEventListener('hashchange',()=>{route();scrollTo(0,0)});
+document.getElementById('view').addEventListener('change',e=>{
+  const t=e.target;if(!t.dataset||!t.dataset.s)return;
+  const k=key(t.dataset.s,t.dataset.c);const v=get(t.dataset.s,t.dataset.c).slice();v[+t.dataset.k]=t.checked?1:0;S.done[k]=v;save();
+  const y=scrollY;route();scrollTo(0,y);
+  const f=document.querySelector(`input[data-s="${t.dataset.s}"][data-c="${CSS.escape(t.dataset.c)}"][data-k="${t.dataset.k}"]`);if(f)f.focus({preventScroll:true});
+});
+/* theme */
+document.getElementById('theme').onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dark?'light':'dark'};
+/* reset: two-tap confirm, no dialogs */
+const rb=document.getElementById('reset');let armed=0;
+rb.onclick=()=>{if(!armed){armed=1;rb.textContent='Tap again to erase all progress';setTimeout(()=>{armed=0;rb.textContent='Reset progress'},4000)}else{S.done={};save();armed=0;rb.textContent='Reset progress';route()}};
+document.getElementById('export').onclick=async e=>{const b=e.target;const txt=JSON.stringify(S);try{await navigator.clipboard.writeText(txt);b.textContent='Copied'}catch(x){b.textContent='Copy blocked'}setTimeout(()=>b.textContent='Copy backup',2000)};
+route();
+fetch('/api/config').then(r=>r.json()).then(c=>{GCID=c.googleClientId||null;if(!GCID)return;
+  const g=document.createElement('script');g.src='https://accounts.google.com/gsi/client';g.async=true;g.onload=renderGoogle;document.head.append(g);
+  if((location.hash||'')==='#account')route()}).catch(()=>{});
+if(TOKEN)api('/me').then(j=>{USER=j.user;store();applyServer(j.progress);route()}).catch(e=>{if(e.status===401)logout()});
+</script>
+
+</body></html>
