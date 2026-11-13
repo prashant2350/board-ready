@@ -31,6 +31,15 @@ const User = mongoose.model('User', new mongoose.Schema({
 
 const app = express();
 app.use(express.json({ limit: '200kb' }));
+app.set('trust proxy', 1); // Render/Vercel sit behind a proxy; needed so rate limits see each visitor's real IP
+
+// Connect lazily and reuse the connection. Works for a normal server and for serverless (Vercel).
+let dbReady = null;
+const connectDb = () => dbReady || (dbReady = mongoose.connect(MONGODB_URI).catch(e => { dbReady = null; throw e; }));
+app.use('/api', async (req, res, next) => {
+  try { await connectDb(); next(); }
+  catch (e) { console.error('MongoDB connection failed:', e.message); res.status(503).json({ error: 'Database unavailable. Please try again.' }); }
+});
 
 const sign = u => jwt.sign({ id: u.id }, JWT_SECRET, { expiresIn: '60d' });
 const view = u => ({ name: u.name, email: u.email, picture: u.picture || '', school: u.school || '', target: u.target ?? null, hasPassword: !!u.password, hasGoogle: !!u.googleId });
@@ -192,6 +201,11 @@ app.put('/api/progress', auth, async (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-mongoose.connect(MONGODB_URI)
-  .then(() => app.listen(PORT, () => console.log(`BoardReady running at http://localhost:${PORT}`)))
-  .catch(e => { console.error('MongoDB connection failed:', e.message); process.exit(1); });
+module.exports = app;
+
+// Run as a normal server (local, Render). On Vercel the app is imported by api/index.js instead.
+if (require.main === module) {
+  connectDb()
+    .then(() => app.listen(PORT, () => console.log(`BoardReady running at http://localhost:${PORT}`)))
+    .catch(e => { console.error('MongoDB connection failed:', e.message); process.exit(1); });
+}
