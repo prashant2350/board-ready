@@ -205,7 +205,7 @@ ul.tr{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--muted);font-si
 </div>
 <nav id="tabs" class="tabs glass" aria-label="Quick"></nav>
 
-<script src="insights-data.js"></script><script src="insights-data2.js"></script>
+<script src="videos.js"></script><script src="whatsnew.js"></script><script src="insights-data.js"></script><script src="insights-data2.js"></script>
 <script>
 const CBSE='https://cbseacademic.nic.in/';
 const SQP='https://cbseacademic.nic.in/SQP_CLASSX_2026-27.html';
@@ -344,7 +344,10 @@ const dots=f=>'●'.repeat(f)+'○'.repeat(3-f);
 const pdfBtn=(l,u,c)=>`<a class="${c||'ghost'}" style="text-decoration:none" href="${u}" target="_blank" rel="noopener">${l}</a>`;
 let INF={tier:'all',pyq:false,q:'',sid:''};
 const insBar=(l,v,max,t)=>`<div class="wb"><span class="wl">${esc(l)}</span><span class="wt"><i class="t${t||'A'}" style="width:${Math.round(v/max*100)}%"></i></span><b>${Number.isInteger(v)?v:v.toFixed(1)}</b></div>`;
-const vids=(s,c)=>`<div class="acts">${pdfBtn('▶ Full chapter videos',yt(`Class 10 ${s.name} ${c.n} full chapter explanation CBSE`),'ghost')}${pdfBtn('▶ Quick revision videos',yt(`Class 10 ${s.name} ${c.n} important questions one shot revision 2027`),'ghost')}<a class="ghost" style="text-decoration:none" href="#${s.id}">Open in tracker</a></div>`;
+const ytOk=u=>/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(u||'');
+const vids=(s,c)=>{const v=(typeof VIDEOS!=='undefined'&&VIDEOS[s.id+'|'+c.n])||{};
+  const full=ytOk(v.full)?v.full:yt(`Class 10 ${s.name} ${c.n} full chapter explanation CBSE`),quick=ytOk(v.quick)?v.quick:yt(`Class 10 ${s.name} ${c.n} important questions one shot revision 2027`);
+  return`<div class="acts">${pdfBtn(ytOk(v.full)?'▶ Watch full chapter':'▶ Full chapter videos',full,'ghost')}${pdfBtn(ytOk(v.quick)?'▶ Watch quick revision':'▶ Quick revision videos',quick,'ghost')}<a class="ghost" style="text-decoration:none" href="#${s.id}">Open in tracker</a></div>`};
 const topicLi=(s,h)=>`<li><span class="fq" title="${FREQ[h.f]}" aria-label="${FREQ[h.f]}">${dots(h.f)}</span><span class="${s.hi?'hi':''}">${esc(h.t)}</span>${h.f>=2?'<span class="pyq" title="Asked in previous year board papers">PYQ</span>':''}</li>`;
 function insCard(s,c){
   const dn=get(s.id,c.n).reduce((a,b)=>a+b,0),hot=INF.pyq?c.hot.filter(h=>h.f>=2):c.hot,hi=s.hi?'hi':'';
@@ -555,7 +558,7 @@ function route(){
   const s=SUBJECTS.find(x=>x.id===h);
   const NAV=navList();document.getElementById('nav').innerHTML=NAV.map(([id,l])=>`<a href="#${id}" ${id===h||(!NAV.some(n=>n[0]===h)&&h!=='account'&&id==='home')?'aria-current="page"':''}>${l}</a>`).join('');
   document.getElementById('view').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">${s?subject(s):h==='admin'?admin():h==='insights'?insights(P[1],P[2]):h==='roadmap'?roadmap():h==='question-bank'?qbank():h==='schedule'?schedule():h==='account'?account():home()}</div>`;
-  renderTabs(h);updateAcct();renderGoogle();const ex=document.getElementById('exam');if(ex)ex.onchange=e=>{S.exam=e.target.value;save();route()};
+  renderTabs(h);updateAcct();renderGoogle();if(typeof maybeWhatsNew==='function')maybeWhatsNew();const ex=document.getElementById('exam');if(ex)ex.onchange=e=>{S.exam=e.target.value;save();route()};
 }
 addEventListener('hashchange',()=>{route();scrollTo(0,0)});
 document.getElementById('view').addEventListener('change',e=>{
