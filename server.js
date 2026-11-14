@@ -8,6 +8,9 @@ const rateLimit = require('express-rate-limit');
 const { OAuth2Client } = require('google-auth-library');
 
 const { MONGODB_URI, JWT_SECRET, GOOGLE_CLIENT_ID, PORT = 3000 } = process.env;
+// Admins: comma-separated emails in ADMIN_EMAILS. Leave empty to turn the admin panel off.
+const ADMINS = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+const isAdmin = u => !!u && ADMINS.includes(u.email);
 if (!MONGODB_URI || !JWT_SECRET) {
   console.error('Missing MONGODB_URI or JWT_SECRET. Copy .env.example to .env and fill it in.');
   process.exit(1);
@@ -44,7 +47,7 @@ app.use('/api', async (req, res, next) => {
 
 const sign = u => jwt.sign({ id: u.id }, JWT_SECRET, { expiresIn: '60d' });
 const SUBJECT_IDS = ['hindi', 'english', 'maths', 'science', 'it', 'sst'];
-const view = u => ({ subjects: u.subjects || [], name: u.name, email: u.email, picture: u.picture || '', school: u.school || '', target: u.target ?? null, hasPassword: !!u.password, hasGoogle: !!u.googleId });
+const view = u => ({ isAdmin: isAdmin(u), subjects: u.subjects || [], name: u.name, email: u.email, picture: u.picture || '', school: u.school || '', target: u.target ?? null, hasPassword: !!u.password, hasGoogle: !!u.googleId });
 const prog = u => ({ done: JSON.parse(u.progress || '{}'), exam: u.exam });
 
 const authLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, message: { error: 'Too many attempts. Try again in a few minutes.' } });
@@ -202,6 +205,48 @@ app.put('/api/progress', auth, async (req, res) => {
     await req.user.save();
     res.json({ ok: true, savedAt: req.user.updatedAt });
   } catch (e) { console.error(e); res.status(500).json({ error: 'Server error. Please try again.' }); }
+});
+
+
+// ---- admin panel (only emails listed in ADMIN_EMAILS). Never returns passwords or full progress.
+const adminOnly = (req, res, next) => isAdmin(req.user) ? next() : res.status(403).json({ error: 'Admins only.' });
+const tickCount = str => { try { return Object.values(JSON.parse(str || '{}')).reduce((a, v) => a + (Array.isArray(v) ? v.filter(Boolean).length : 0), 0); } catch { return 0; } };
+
+app.get('/api/admin/stats', auth, adminOnly, async (req, res) => {
+  try {
+    const day = 864e5, now = Date.now(), d7 = new Date(now - 7 * day), d14 = new Date(now - 14 * day), d30 = new Date(now - 30 * day);
+    const [total, new7, new30, active7, google, signups, subj] = await Promise.all([
+      User.countDocuments(), User.countDocuments({ createdAt: { $gte: d7 } }), User.countDocuments({ createdAt: { $gte: d30 } }),
+      User.countDocuments({ updatedAt: { $gte: d7 } }), User.countDocuments({ googleId: { $exists: true, $ne: null } }),
+      User.aggregate([{ $match: { createdAt: { $gte: d14 } } }, { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, n: { $sum: 1 } } }]),
+      User.aggregate([{ $unwind: '$subjects' }, { $group: { _id: '$subjects', n: { $sum: 1 } } }])
+    ]);
+    let withProgress = 0, ticks = 0;
+    for await (const u of User.find({}).select('progress').lean().cursor()) { const t = tickCount(u.progress); if (t) { withProgress++; ticks += t; } }
+    const noSubjects = await User.countDocuments({ $or: [{ subjects: { $size: 0 } }, { subjects: { $exists: false } }] });
+    res.json({ total, new7, new30, active7, google, withProgress, avgTicks: withProgress ? Math.round(ticks / withProgress) : 0,
+      signups: signups.map(x => ({ day: x._id, n: x.n })), subjects: Object.fromEntries(subj.map(x => [x._id, x.n])), noSubjects });
+  } catch (e) { fail(res, e); }
+});
+
+app.get('/api/admin/users', auth, adminOnly, async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1), per = 25, q = String(req.query.q || '').trim().slice(0, 60);
+    const rx = q ? new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : null;
+    const filter = rx ? { $or: [{ name: rx }, { email: rx }, { school: rx }] } : {};
+    const [count, list] = await Promise.all([User.countDocuments(filter), User.find(filter).sort({ createdAt: -1 }).skip((page - 1) * per).limit(per).select('name email school subjects googleId progress createdAt updatedAt').lean()]);
+    res.json({ page, pages: Math.max(1, Math.ceil(count / per)), count,
+      users: list.map(u => ({ id: String(u._id), name: u.name, email: u.email, school: u.school || '', subjects: u.subjects || [], google: !!u.googleId, ticks: tickCount(u.progress), joined: u.createdAt, lastActive: u.updatedAt })) });
+  } catch (e) { fail(res, e); }
+});
+
+app.delete('/api/admin/users/:id', auth, adminOnly, async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: 'Bad user id.' });
+    if (String(req.user._id) === req.params.id) return res.status(400).json({ error: 'Use Account > Delete my account for your own account.' });
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (e) { fail(res, e); }
 });
 
 app.use(express.static(path.join(__dirname, 'public')));

@@ -118,7 +118,7 @@ footer{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-
 @media (max-width:640px){.hero{grid-template-columns:1fr}.subj-head .links{margin-left:0}.ch{grid-template-columns:1fr}}
 
 .tabs,.chips{display:none}
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;border-radius:20px 20px 0 0;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));grid-template-columns:repeat(5,1fr);gap:2px;background:var(--glass-strong)}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;border-radius:20px 20px 0 0;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));grid-template-columns:repeat(6,1fr);gap:2px;background:var(--glass-strong)}
 .tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;border-radius:14px;text-decoration:none;color:var(--muted);font-size:11px;font-weight:600}
 .tabs a i{font-style:normal;font-size:19px;line-height:1}
 .tabs a[aria-current="page"]{background:var(--accent);color:var(--accent-fg)}
@@ -172,6 +172,21 @@ footer{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-
  .acts .btn,.acts .ghost{flex:1;text-align:center;justify-content:center}
 }
 @media (max-width:380px){.dt{width:56px}.dt b{font-size:24px}.tabs a{font-size:10px}}
+.itabs{display:flex;gap:8px;flex-wrap:wrap}.itabs a,.itabs button{text-decoration:none}.itabs [aria-current=page]{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+.insch{padding:0;overflow:hidden}.insch summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 18px;font-weight:600}
+.insch summary::-webkit-details-marker{display:none}.insch summary::before{content:"▸";margin-right:8px;color:var(--muted)}.insch[open] summary::before{content:"▾"}
+.insch .in{flex:1;min-width:180px}.badges{display:flex;gap:6px;flex-wrap:wrap;font:500 12px var(--f-body)}
+.badges span{padding:3px 9px;border-radius:999px;border:1px solid var(--edge);background:var(--glass-strong)}
+.badges .tr{background:var(--accent);color:var(--accent-fg);border-color:transparent}.tierB .badges .tr{background:var(--good);color:#fff}.tierC .badges .tr{background:var(--muted);color:var(--bg)}
+.inb{padding:0 18px 16px;display:grid;gap:8px;font-size:14px}.inb p{margin:0}.inb h4{margin:4px 0 0;font:600 14px var(--f-head)}.inb h4 small{font:400 12px var(--f-body);color:var(--muted)}
+ul.hot{list-style:none;margin:0;padding:0;display:grid;gap:6px}ul.hot li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline}.fq{white-space:nowrap}
+.fq{font-size:11px;letter-spacing:1px;color:var(--accent);flex:none}.pyq{font:700 10px var(--f-head);letter-spacing:.06em;padding:2px 7px;border-radius:6px;background:#ffb020;color:#2b1d00}
+.wb{display:grid;grid-template-columns:minmax(110px,1.2fr) 2fr auto;gap:10px;align-items:center;padding:5px 0;font-size:13.5px}.wl{overflow-wrap:anywhere}
+.wt{height:10px;border-radius:9px;background:var(--line);overflow:hidden}.wt i{display:block;height:100%;border-radius:9px;background:var(--accent)}.wt i.tB{background:var(--good)}.wt i.tC{background:var(--muted)}
+ul.tr{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--muted);font-size:14px}
+.insf{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.insf input[type=search]{font:inherit;font-size:16px;color:var(--fg);background:var(--glass-strong);border:1px solid var(--edge);border-radius:999px;padding:8px 14px;min-width:0;flex:1 1 100%}
+.pl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+@media (max-width:640px){.pl{grid-template-columns:1fr}.wb{grid-template-columns:1fr auto}.wb .wt{grid-column:1/-1;order:3}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -190,6 +205,7 @@ footer{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-
 </div>
 <nav id="tabs" class="tabs glass" aria-label="Quick"></nav>
 
+<script src="insights-data.js"></script><script src="insights-data2.js"></script>
 <script>
 const CBSE='https://cbseacademic.nic.in/';
 const SQP='https://cbseacademic.nic.in/SQP_CLASSX_2026-27.html';
@@ -306,6 +322,8 @@ function qbank(){
   const subj=SUBJECTS.map(s=>`<a class="ghost" style="text-decoration:none" href="${SQP}" target="_blank" rel="noopener">${s.name}</a>`).join('');
   return`<div class="sec-title"><h2>Question bank</h2><p>Every paper is hosted by CBSE. These buttons open the official pages.</p></div>
   <ol class="how glass"><li>Open the sample question papers page.</li><li>Choose your subject (Hindi A, English Language &amp; Literature, Mathematics Standard or Basic, Science, IT 402, Social Science).</li><li>Download both the paper and its marking scheme.</li><li>Solve in 3 hours, then check with the scheme.</li></ol>
+  <div class="sec-title"><h2>Direct PDF links</h2><p>Sample papers and marking schemes, subject by subject</p></div>
+  <div class="grid">${mine().map(s=>`<section class="qb glass"><h3>${s.name}</h3>${paperRows(s.id)}<a class="ghost" style="text-decoration:none;align-self:flex-start" href="#insights/${s.id}/papers">Previous year papers (PYQ)</a></section>`).join('')}</div>
   <div class="grid">
    <div class="qb glass"><h3>Sample question papers 2026-27</h3><p>Latest SQPs and marking schemes for the 2027 board exam, all subjects.</p><a class="btn" href="${SQP}" target="_blank" rel="noopener">Open on CBSE</a></div>
    <div class="qb glass"><h3>Syllabus and curriculum</h3><p>Official curriculum PDFs: pattern, marks per unit and internal assessment.</p><a class="btn" href="${CBSE}" target="_blank" rel="noopener">Open CBSE Academic</a></div>
@@ -315,6 +333,120 @@ function qbank(){
   <div class="qb glass"><h3>Jump to the sample paper list by subject</h3><div style="display:flex;flex-wrap:wrap;gap:8px">${subj}</div><p>All six open the same CBSE class X page, where each subject has its own paper and marking scheme.</p></div>
   <p class="note glass">This site only links to CBSE. If a link moves, search "CBSE Academic sample question papers class X" and use the cbseacademic.nic.in result.</p>`;
 }
+
+
+/* ---------- exam insights ---------- */
+const TIER={A:['Must-do','Asked almost every year'],B:['High chance','Asked in most papers'],C:['Selective','Lower weight, learn after the rest']};
+const FREQ=['','Occasionally asked','Asked in most years','Asked almost every year'];
+const avgM=m=>{const n=(String(m).match(/\d+/g)||[]).map(Number);return n.length?n.reduce((a,b)=>a+b)/n.length:0};
+const yt=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+const dots=f=>'●'.repeat(f)+'○'.repeat(3-f);
+const pdfBtn=(l,u,c)=>`<a class="${c||'ghost'}" style="text-decoration:none" href="${u}" target="_blank" rel="noopener">${l}</a>`;
+let INF={tier:'all',pyq:false,q:'',sid:''};
+const insBar=(l,v,max,t)=>`<div class="wb"><span class="wl">${esc(l)}</span><span class="wt"><i class="t${t||'A'}" style="width:${Math.round(v/max*100)}%"></i></span><b>${Number.isInteger(v)?v:v.toFixed(1)}</b></div>`;
+const vids=(s,c)=>`<div class="acts">${pdfBtn('▶ Full chapter videos',yt(`Class 10 ${s.name} ${c.n} full chapter explanation CBSE`),'ghost')}${pdfBtn('▶ Quick revision videos',yt(`Class 10 ${s.name} ${c.n} important questions one shot revision 2027`),'ghost')}<a class="ghost" style="text-decoration:none" href="#${s.id}">Open in tracker</a></div>`;
+const topicLi=(s,h)=>`<li><span class="fq" title="${FREQ[h.f]}" aria-label="${FREQ[h.f]}">${dots(h.f)}</span><span class="${s.hi?'hi':''}">${esc(h.t)}</span>${h.f>=2?'<span class="pyq" title="Asked in previous year board papers">PYQ</span>':''}</li>`;
+function insCard(s,c){
+  const dn=get(s.id,c.n).reduce((a,b)=>a+b,0),hot=INF.pyq?c.hot.filter(h=>h.f>=2):c.hot,hi=s.hi?'hi':'';
+  return`<details class="insch glass tier${c.t}"><summary><span class="in ${hi}">${esc(c.n)}</span><span class="badges"><span>${/\d/.test(c.m)?esc(c.m)+' marks':esc(c.m)}</span><span class="tr">${TIER[c.t][0]}</span><span>${dn}/3 done</span></span></summary>
+  <div class="inb">${c.life?`<p class="${hi}"><b>${s.id==='hindi'?'लेखक / कवि':'About the writer'}:</b> ${esc(c.life)}</p>`:''}
+  <h4>What gets asked <small>(● ● ● = how often · PYQ = seen in previous board papers)</small></h4><ul class="hot">${hot.map(h=>topicLi(s,h)).join('')}</ul>
+  <p class="${hi}"><b>Strategy:</b> ${esc(c.tip)}</p>${c.prep?`<p class="${hi}"><b>How to prepare:</b> ${esc(c.prep)}</p>`:''}${vids(s,c)}</div></details>`;
+}
+const insFilter=s=>{const q=INF.q.trim().toLowerCase();return INS[s.id].ch.filter(c=>(INF.tier==='all'||c.t===INF.tier)&&(!INF.pyq||c.hot.some(h=>h.f>=2))&&(!q||(c.n+' '+c.hot.map(h=>h.t).join(' ')).toLowerCase().includes(q)))};
+const insList=s=>{const l=insFilter(s);return l.length?l.map(c=>insCard(s,c)).join(''):'<p class="note glass">No chapter matches these filters.</p>'};
+
+function insPattern(s){
+  const d=INS[s.id],p=d.pattern,umax=Math.max(...p.units.map(u=>u[1]));
+  const chs=d.ch.map(c=>[c.n,avgM(c.m),c.t]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]),cmax=Math.max(...chs.map(x=>x[1]));
+  return`<div class="note glass">${esc(p.note)}</div>
+  <div class="tbl glass"><table><thead><tr><th>Section</th><th>Type of question</th><th>Questions × marks</th><th>Marks</th></tr></thead><tbody>${p.rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+  <section class="group glass"><h3>Marks by unit<span>approximate</span></h3>${p.units.map(u=>insBar(u[0],u[1],umax)).join('')}</section>
+  <section class="group glass"><h3>Chapter weightage<span>typical marks · colour = priority</span></h3>${chs.map(x=>insBar(x[0],x[1],cmax,x[2])).join('')}</section>
+  <section class="group glass"><h3>Trends from recent papers</h3><ul class="tr">${d.trend.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></section>`;
+}
+function insChapters(s){
+  INF.sid=s.id;
+  return`<div class="insf"><input type="search" id="insQ" placeholder="Search a chapter or topic" value="${esc(INF.q)}" aria-label="Search chapters and topics">
+  ${[['all','All'],['A','Must-do'],['B','High chance'],['C','Selective']].map(([k,l])=>`<button type="button" class="ghost" data-itier="${k}" ${INF.tier===k?'aria-current="page"':''}>${l}</button>`).join('')}
+  <button type="button" class="ghost" id="insPyq" ${INF.pyq?'aria-current="page"':''}>PYQ topics only</button></div>
+  <div style="display:flex;flex-direction:column;gap:10px" id="inslist">${insList(s)}</div>`;
+}
+function insMust(s){
+  const d=INS[s.id],ms=d.ch.filter(c=>c.t==='A').sort((a,b)=>avgM(b.m)-avgM(a.m)),hi=s.hi?'hi':'';
+  return`<div class="note glass"><b>Must-do topics.</b> These chapters carry the most marks and their topics have appeared in almost every recent paper. No one can promise a particular question, so treat this as "very high chance", and still cover the rest. Videos open YouTube search for that chapter. Channels that cover the CBSE syllabus well: ${esc(d.channels)}.</div>
+  ${ms.map(c=>{const t=c.hot.filter(h=>h.f===3);return`<section class="group glass"><h3 class="${hi}">${esc(c.n)}<span>${/\d/.test(c.m)?esc(c.m)+' marks':esc(c.m)}</span></h3>
+   <ul class="hot">${(t.length?t:c.hot.filter(h=>h.f>=2)).map(h=>topicLi(s,h)).join('')}</ul>${c.prep?`<p class="${hi}" style="margin:8px 0 0;font-size:14px"><b>How to prepare:</b> ${esc(c.prep)}</p>`:''}${vids(s,c)}</section>`}).join('')}`;
+}
+function paperRows(sid){
+  const P=PAPERS[sid];
+  return P.sqp.map(([n,a,b])=>`<div class="pl"><span>${esc(n)}</span>${pdfBtn('Sample paper (PDF)',a,'btn')}${pdfBtn('Marking scheme (PDF)',b,'ghost')}</div>`).join('');
+}
+function insPapers(s){
+  const P=PAPERS[s.id];
+  return`<section class="group glass"><h3>Sample question paper 2026-27<span>direct PDF</span></h3>${paperRows(s.id)}${P.sqpNote?`<p class="sub" style="margin:8px 0 0">${esc(P.sqpNote)}</p>`:''}</section>
+  <section class="group glass"><h3>Previous year question papers <span class="pyq">PYQ</span></h3>
+   ${P.pyq.map(([n,u])=>`<div class="pl"><span>${esc(n)}</span>${pdfBtn(/\.pdf$/.test(u)?'Download PDF':'Download (ZIP of PDFs)',u,'ghost')}<span></span></div>`).join('')}
+   <p class="sub" style="margin:8px 0 0">CBSE publishes most previous year papers as a ZIP for each exam. Open the ZIP on your phone or computer to get the PDFs. These links go straight to the official files on cbse.gov.in.</p></section>
+  <section class="group glass"><h3>Syllabus</h3><div class="pl"><span>Detailed syllabus 2026-27</span>${pdfBtn('Syllabus (PDF)',SYL[s.id],'ghost')}<span></span></div></section>`;
+}
+function insights(sid,tab){
+  if(!sid||!INS[sid]){
+    return`<div class="sec-title"><h2>Exam insights</h2><p>Paper pattern, important topics, previous year trends and PDFs, subject by subject</p></div>
+    <ol class="how glass"><li>Pick a subject.</li><li>See the paper pattern and which chapters carry the most marks.</li><li>Open a chapter to see what was asked, how often, and how to prepare it.</li><li>Use Must-do topics for the last weeks, and download papers and PYQs.</li></ol>
+    <div class="grid">${mine().map(s=>{const d=INS[s.id],a=d.ch.filter(c=>c.t==='A').length;return`<a class="card glass" href="#insights/${s.id}/pattern" style="--sc:${s.color}"><h3>${s.name}</h3><div class="meta">${d.ch.length} chapters analysed · ${a} must-do</div><div class="bar"><i style="width:${Math.round(a/d.ch.length*100)}%"></i></div></a>`}).join('')}</div>
+    <p class="note glass">This analysis is compiled by BoardReady from the CBSE blueprint and the pattern of recent board and sample papers. Marks are typical ranges, not official figures, and CBSE can change the pattern. Always check the latest sample paper and syllabus.</p>`;
+  }
+  const s=SUBJECTS.find(x=>x.id===sid);tab=['pattern','chapters','must','papers'].includes(tab)?tab:'pattern';
+  if(INF.sid!==sid)INF={tier:'all',pyq:false,q:'',sid};
+  const tabs=[['pattern','Paper pattern'],['chapters','Chapters'],['must','Must-do topics'],['papers','Papers (PDF)']];
+  return`<div class="chips">${mine().map(o=>`<a class="ghost" href="#insights/${o.id}/${tab}" ${o.id===sid?'aria-current="page"':''}>${short(o)}</a>`).join('')}</div>
+  <section class="subj-head glass" style="--sc:${s.color}"><div><h1>${s.name}: exam insights</h1><p>${INS[sid].ch.length} chapters analysed · <a href="#insights">All subjects</a></p></div></section>
+  <div class="itabs">${tabs.map(([k,l])=>`<a class="ghost" href="#insights/${sid}/${k}" ${k===tab?'aria-current="page"':''}>${l}</a>`).join('')}</div>
+  ${tab==='pattern'?insPattern(s):tab==='chapters'?insChapters(s):tab==='must'?insMust(s):insPapers(s)}`;
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-itier]');if(b){INF.tier=b.dataset.itier;route();return}if(e.target.closest('#insPyq')){INF.pyq=!INF.pyq;route()}});
+document.addEventListener('input',e=>{if(e.target.id!=='insQ')return;INF.q=e.target.value;const el=document.getElementById('inslist'),s=SUBJECTS.find(x=>x.id===INF.sid);if(el&&s)el.innerHTML=insList(s)});
+
+
+/* ---------- admin (only for emails in ADMIN_EMAILS on the server) ---------- */
+let ADM={q:'',page:1};
+const fdate=d=>d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}):'';
+function admin(){
+  if(!USER||!USER.isAdmin)return`<section class="auth glass"><h2>Admins only</h2><div class="sub">This page is only for BoardReady admins. Log in with an admin account.</div></section>`;
+  setTimeout(adminLoad,0);
+  return`<div class="sec-title"><h2>Admin</h2><p>Students and usage at a glance</p></div><div id="admstats"><p class="note glass">Loading…</p></div><div id="admusers"></div>`;
+}
+async function adminLoad(){
+  const box=document.getElementById('admstats');if(!box)return;
+  try{
+    const d=await api('/admin/stats');
+    const cards=[['Students',d.total],['Joined in 7 days',d.new7],['Joined in 30 days',d.new30],['Active in 7 days',d.active7],['Started ticking',d.withProgress],['Avg ticks per active student',d.avgTicks],['Google sign-ins',d.google],['Chose subjects',d.total-d.noSubjects]];
+    const days=[];for(let i=13;i>=0;i--){const t=new Date(Date.now()-i*864e5).toISOString().slice(0,10);days.push([t,(d.signups.find(x=>x.day===t)||{}).n||0])}
+    const mx=Math.max(1,...days.map(x=>x[1])),sm=Math.max(1,...SUBJECTS.map(s=>d.subjects[s.id]||0));
+    box.innerHTML=`<div class="grid">${cards.map(([l,v])=>`<div class="card glass"><div class="meta">${l}</div><h3 style="font-size:30px">${v}</h3></div>`).join('')}</div>
+    <div class="grid" style="margin-top:16px"><section class="group glass"><h3>New students, last 14 days</h3><div style="display:flex;align-items:flex-end;gap:4px;height:90px" role="img" aria-label="Signups per day">${days.map(([t,n])=>`<div title="${t}: ${n}" style="flex:1;background:var(--accent);border-radius:4px 4px 0 0;height:${Math.max(3,Math.round(n/mx*90))}px;opacity:${n?1:.25}"></div>`).join('')}</div></section>
+    <section class="group glass"><h3>Subjects students follow<span>${d.noSubjects} follow all</span></h3>${SUBJECTS.map(s=>insBar(s.name,d.subjects[s.id]||0,sm)).join('')}</section></div>`;
+    adminUsers();
+  }catch(x){box.innerHTML=`<p class="note glass">${esc(x.status===403?'Your account is not an admin. Add your email to ADMIN_EMAILS on the server.':x.message||'Could not load.')}</p>`}
+}
+async function adminUsers(){
+  const box=document.getElementById('admusers');if(!box)return;
+  try{
+    const d=await api(`/admin/users?page=${ADM.page}&q=${encodeURIComponent(ADM.q)}`);
+    box.innerHTML=`<div class="sec-title" style="margin-top:6px"><h2>Students</h2><p>${d.count} found</p></div>
+    <form id="admsearch" class="insf" style="margin-bottom:10px"><input type="search" name="q" value="${esc(ADM.q)}" placeholder="Search name, email or school" aria-label="Search students"><button class="ghost" type="submit">Search</button></form>
+    <div class="tbl glass"><table style="min-width:760px"><thead><tr><th>Name</th><th>Email</th><th>School</th><th>Subjects</th><th>Ticks</th><th>Joined</th><th>Last active</th><th></th></tr></thead><tbody>
+    ${d.users.map(u=>`<tr><td>${esc(u.name)}${u.google?' <span class="pyq" style="background:var(--glass-strong);color:var(--fg)">G</span>':''}</td><td>${esc(u.email)}</td><td>${esc(u.school)}</td><td>${u.subjects.length?u.subjects.map(id=>esc(id)).join(', '):'all'}</td><td>${u.ticks}</td><td>${fdate(u.joined)}</td><td>${fdate(u.lastActive)}</td><td><button class="ghost danger" type="button" data-adel="${esc(u.id)}">Delete</button></td></tr>`).join('')||'<tr><td colspan="8">No students.</td></tr>'}</tbody></table></div>
+    <div class="row" style="justify-content:center;margin-top:10px"><button class="ghost" type="button" data-apage="${d.page-1}" ${d.page<=1?'disabled':''}>Previous</button><span class="sub">Page ${d.page} of ${d.pages}</span><button class="ghost" type="button" data-apage="${d.page+1}" ${d.page>=d.pages?'disabled':''}>Next</button></div>`;
+  }catch(x){box.innerHTML=`<p class="note glass">${esc(x.message||'Could not load students.')}</p>`}
+}
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-adel]');
+  if(b){if(!b.dataset.armed){b.dataset.armed=1;b.textContent='Tap again to delete';setTimeout(()=>{delete b.dataset.armed;b.textContent='Delete'},4000);return}
+    try{await api('/admin/users/'+b.dataset.adel,{method:'DELETE'});adminLoad()}catch(x){b.textContent=x.message||'Failed'}return}
+  const pg=e.target.closest('[data-apage]');if(pg&&!pg.disabled){ADM.page=+pg.dataset.apage;adminUsers()}});
+document.addEventListener('submit',e=>{if(e.target.id!=='admsearch')return;e.preventDefault();ADM.q=new FormData(e.target).get('q')||'';ADM.page=1;adminUsers()});
 
 /* ---------- schedule ---------- */
 function schedule(){
@@ -366,7 +498,7 @@ function account(){
         ${USER.hasPassword?'<input name="current" type="password" placeholder="Current password" autocomplete="current-password" required>':''}
         <input name="next" type="password" placeholder="New password (min 6 characters)" autocomplete="new-password" required>
         <div class="err" id="pwmsg" role="status"></div><button class="btn" type="submit">${USER.hasPassword?'Change password':'Set password'}</button></form></section>
-    <section class="auth glass"><h2>Account</h2><button class="btn" id="logout" type="button">Log out</button>
+    <section class="auth glass"><h2>Account</h2>${USER.isAdmin?'<a class="btn" href="#admin" style="text-align:center">Open admin panel</a>':''}<button class="btn" id="logout" type="button">Log out</button>
       ${USER.hasPassword?'<input id="delpw" type="password" placeholder="Password (needed to delete)" autocomplete="current-password">':''}
       <div class="err" id="delmsg" role="alert"></div><button class="ghost danger" id="delacct" type="button">Delete my account</button></section>`;
   }
@@ -393,7 +525,7 @@ async function onGoogle(r){
       route()}
   }catch(x){say(linking?'gmsg':'autherr',x.status?x.message:'Cannot reach the server. Check your connection.')}
 }
-const TABS=[['home','🏠','Home'],['schedule','📅','Schedule'],['roadmap','🗺️','Roadmap'],['question-bank','📝','Papers'],['account','👤','Account']];
+const TABS=[['home','🏠','Home'],['schedule','📅','Schedule'],['roadmap','🗺️','Roadmap'],['insights','📊','Insights'],['question-bank','📝','Papers'],['account','👤','Account']];
 function renderTabs(h){const cur=TABS.some(t=>t[0]===h)?h:'home';document.getElementById('tabs').innerHTML=TABS.map(([id,ic,l])=>`<a href="#${id}" ${id===cur?'aria-current="page"':''}><i aria-hidden="true">${ic}</i>${id==='account'&&USER?esc(USER.name.split(' ')[0]).slice(0,8):l}</a>`).join('')}
 function updateAcct(){const b=document.getElementById('acct');if(!b)return;b.replaceChildren();if(USER&&USER.picture){const i=document.createElement('img');i.src=USER.picture;i.alt='';i.referrerPolicy='no-referrer';b.append(i)}b.append(USER?USER.name.split(' ')[0]:'Log in')}
 const wipeLocal=()=>{S.done={};try{localStorage.removeItem('boardready.v1')}catch(x){}};
@@ -417,12 +549,12 @@ document.addEventListener('submit',async e=>{const id=e.target.id;if(!FORMS[id])
   }catch(x){say(FORMS[id],x.status?x.message:'Cannot reach the server. Check your connection.');b.disabled=false}});
 
 /* ---------- router ---------- */
-const navList=()=>[['home','Home'],['schedule','Schedule'],...mine().map(s=>[s.id,s.name==='Information Technology'?'IT':s.name==='Mathematics'?'Maths':s.name]),['roadmap','Roadmap'],['question-bank','Question bank']];
+const navList=()=>[['home','Home'],['schedule','Schedule'],...mine().map(s=>[s.id,s.name==='Information Technology'?'IT':s.name==='Mathematics'?'Maths':s.name]),['roadmap','Roadmap'],['insights','Insights'],['question-bank','Question bank'],...(USER&&USER.isAdmin?[['admin','Admin']]:[])];
 function route(){
-  const h=(location.hash||'#home').slice(1);
+  const P=(location.hash||'#home').slice(1).split('/'),h=P[0];
   const s=SUBJECTS.find(x=>x.id===h);
   const NAV=navList();document.getElementById('nav').innerHTML=NAV.map(([id,l])=>`<a href="#${id}" ${id===h||(!NAV.some(n=>n[0]===h)&&h!=='account'&&id==='home')?'aria-current="page"':''}>${l}</a>`).join('');
-  document.getElementById('view').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">${s?subject(s):h==='roadmap'?roadmap():h==='question-bank'?qbank():h==='schedule'?schedule():h==='account'?account():home()}</div>`;
+  document.getElementById('view').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">${s?subject(s):h==='admin'?admin():h==='insights'?insights(P[1],P[2]):h==='roadmap'?roadmap():h==='question-bank'?qbank():h==='schedule'?schedule():h==='account'?account():home()}</div>`;
   renderTabs(h);updateAcct();renderGoogle();const ex=document.getElementById('exam');if(ex)ex.onchange=e=>{S.exam=e.target.value;save();route()};
 }
 addEventListener('hashchange',()=>{route();scrollTo(0,0)});
