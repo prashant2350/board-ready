@@ -134,6 +134,8 @@ footer{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-
 .auth label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .who{display:flex;align-items:center;gap:14px}.who h2{margin:0}
 .sub{color:var(--muted);font-size:14px}
+.subjpick{border:1px solid var(--edge);border-radius:14px;padding:12px;margin:0;display:grid;gap:4px}.subjpick legend{font:600 14px var(--f-head);padding:0 6px}
+.auth label.chk{flex-direction:row;align-items:center;gap:10px;font-size:15px;color:var(--fg);min-height:36px}.auth label.chk input{width:18px;height:18px;accent-color:var(--accent)}
 .av{width:56px;height:56px;flex:none;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);font:700 22px var(--f-head)}
 #acct img{width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover}
 .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -243,7 +245,8 @@ const key=(s,c)=>s+'|'+c;
 const get=(s,c)=>S.done[key(s,c)]||[0,0,0];
 const items=s=>s.groups.flatMap(g=>g.i);
 const stat=s=>{const it=items(s);let d=0;it.forEach(c=>get(s.id,c).forEach(v=>d+=v));return{done:d,total:it.length*3,pct:Math.round(d/(it.length*3)*100),full:it.filter(c=>get(s.id,c).every(Boolean)).length,n:it.length}};
-const overall=()=>{let d=0,t=0;SUBJECTS.forEach(s=>{const x=stat(s);d+=x.done;t+=x.total});return Math.round(d/t*100)};
+const mine=()=>{const m=(typeof USER!=='undefined'&&USER&&USER.subjects)||[];const r=SUBJECTS.filter(s=>m.includes(s.id));return r.length?r:SUBJECTS};
+const overall=()=>{let d=0,t=0;mine().forEach(s=>{const x=stat(s);d+=x.done;t+=x.total});return Math.round(d/t*100)};
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ring=(p,c)=>{const r=26,L=2*Math.PI*r;return`<div class="ring"><svg viewBox="0 0 64 64"><circle class="tr" cx="32" cy="32" r="${r}"/><circle cx="32" cy="32" r="${r}" stroke="${c}" stroke-dasharray="${L}" stroke-dashoffset="${L*(1-p/100)}"/></svg><b>${p}%</b></div>`};
 const daysLeft=()=>{if(!S.exam)return null;const d=Math.ceil((new Date(S.exam+'T00:00:00')-new Date(new Date().toDateString()))/864e5);return isNaN(d)?null:d};
@@ -252,13 +255,13 @@ const fmt=d=>d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
 /* ---------- views ---------- */
 function home(){
   const dl=daysLeft();
-  const cards=SUBJECTS.map(s=>{const x=stat(s);return`<a class="card glass" href="#${s.id}" style="--sc:${s.color}">
+  const cards=mine().map(s=>{const x=stat(s);return`<a class="card glass" href="#${s.id}" style="--sc:${s.color}">
     <div class="row">${ring(x.pct,s.color)}<div><h3>${s.name}</h3><div class="meta">${s.sub}</div></div></div>
     <div class="bar"><i style="width:${x.pct}%"></i></div>
     <div class="meta">${x.full} of ${x.n} chapters fully revised</div></a>`}).join('');
   return`<section class="hero glass"><div>
       <h1>Your complete Class 10 board roadmap</h1>
-      <p>Six subjects, every chapter, three steps each: study it, practise it, revise it. Tick them off and watch the rings fill.</p>
+      <p>${mine().length===6?'Six subjects':mine().length+' of your subjects'}, every chapter, three steps each: study it, practise it, revise it. Tick them off and watch the rings fill.</p>
       <div class="days"><label for="exam">First board exam on</label><input type="date" id="exam" value="${S.exam||''}">
       <span>${dl==null?'Pick a date to get a countdown.':dl>0?`<b>${dl} days</b> to go`:dl===0?'<b>Exam day.</b> Good luck.':'Date has passed. Update it.'}</span></div></div>
     <div class="big"><b>${overall()}%</b><span>of the full syllabus done</span></div></section>
@@ -275,7 +278,7 @@ function subject(s){
     const rows=g.i.map(c=>{const v=get(s.id,c);return`<div class="ch ${v.every(Boolean)?'full':''}"><div class="name ${s.hi?'hi':''}">${esc(c)}</div>
       <div class="steps">${STAGES.map((st,k)=>`<label class="step"><input type="checkbox" data-s="${s.id}" data-c="${esc(c)}" data-k="${k}" ${v[k]?'checked':''}>${st}</label>`).join('')}</div></div>`}).join('');
     return`<section class="group glass"><h3 class="${s.hi?'hi':''}">${g.t}<span>${gd}/${g.i.length} done</span></h3>${rows}</section>`}).join('');
-  return`<div class="chips">${SUBJECTS.map(o=>`<a class="ghost" href="#${o.id}" ${o.id===s.id?'aria-current="page"':''}>${short(o)}</a>`).join('')}</div><section class="subj-head glass" style="--sc:${s.color}">${ring(x.pct,s.color)}
+  return`<div class="chips">${mine().map(o=>`<a class="ghost" href="#${o.id}" ${o.id===s.id?'aria-current="page"':''}>${short(o)}</a>`).join('')}</div><section class="subj-head glass" style="--sc:${s.color}">${ring(x.pct,s.color)}
     <div><h1>${s.name}</h1><p>${s.sub}</p><p>${x.full} of ${x.n} chapters fully revised</p></div>
     <div class="links"><a class="ghost" style="text-decoration:none" href="${SYL[s.id]}" target="_blank" rel="noopener">Detailed syllabus (PDF)</a>
     <a class="ghost" style="text-decoration:none" href="${SQP}" target="_blank" rel="noopener">Sample papers</a></div></section>${groups}`;
@@ -292,7 +295,7 @@ function roadmap(){
   if(dl&&dl>0){let t=new Date(new Date().toDateString()),acc=0;
     phases=base.map(p=>{const n=Math.max(1,Math.round(dl*p[3]));const a=new Date(t.getTime()+acc*864e5);acc+=n;const b=new Date(t.getTime()+(acc-1)*864e5);return{...p,when:`${fmt(a)} to ${fmt(b)} · ${n} days`}})}
   else phases=base.map(p=>({...p,when:Math.round(p[3]*100)+'% of your time'}));
-  const rem=SUBJECTS.map(s=>{const x=stat(s);return`<tr><td>${s.name}</td><td>${x.n-x.full}</td><td>${x.n}</td><td>${x.pct}%</td>${dl>0?`<td>${((x.n-x.full)/dl*7).toFixed(1)}</td>`:''}</tr>`}).join('');
+  const rem=mine().map(s=>{const x=stat(s);return`<tr><td>${s.name}</td><td>${x.n-x.full}</td><td>${x.n}</td><td>${x.pct}%</td>${dl>0?`<td>${((x.n-x.full)/dl*7).toFixed(1)}</td>`:''}</tr>`}).join('');
   return`<div class="sec-title"><h2>Roadmap</h2><p>${dl>0?`${dl} days until ${fmt(new Date(S.exam+'T00:00:00'))}. Phases below are scaled to your date.`:'Set your exam date on the Home page to scale this plan to your calendar.'}</p></div>
   <div class="phases">${phases.map((p,i)=>`<div class="phase glass"><span class="tag">Phase ${i+1}</span><div class="when">${p.when}</div><h3>${p[0]}</h3><div style="color:var(--muted);font-size:14px">${p[1]}</div><ul>${p[2].split('|').map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>
   <div class="sec-title" style="margin-top:6px"><h2>Where you stand</h2></div>
@@ -316,8 +319,9 @@ function qbank(){
 /* ---------- schedule ---------- */
 function schedule(){
   const today=new Date(new Date().toDateString());let next=-1;
-  const rows=SCHED.map(([id,d,t,label],i)=>{const s=SUBJECTS.find(x=>x.id===id),dt=new Date(d+'T00:00:00'),n=Math.round((dt-today)/864e5);if(n>=0&&next<0)next=i;
-    const gap=i?Math.round((dt-new Date(SCHED[i-1][1]+'T00:00:00'))/864e5)-1:0;return{s,dt,n,t,label,gap,i,x:stat(s)}});
+  const SC=SCHED.filter(r=>mine().some(s=>s.id===r[0]));
+  const rows=SC.map(([id,d,t,label],i)=>{const s=SUBJECTS.find(x=>x.id===id),dt=new Date(d+'T00:00:00'),n=Math.round((dt-today)/864e5);if(n>=0&&next<0)next=i;
+    const gap=i?Math.round((dt-new Date(SC[i-1][1]+'T00:00:00'))/864e5)-1:0;return{s,dt,n,t,label,gap,i,x:stat(s)}});
   return`<div class="sec-title"><h2>Board exam schedule</h2><p>CBSE Class 10 · 2027 · papers start 10:30 AM</p></div>
   <div class="sch">${rows.map(r=>`<article class="ex glass ${r.i===next?'next':''}" style="--sc:${r.s.color}">
     <div class="dt"><b>${r.dt.getDate()}</b><span>${r.dt.toLocaleDateString('en-IN',{month:'short'})}</span><small>${r.dt.toLocaleDateString('en-IN',{weekday:'short'})}</small></div>
@@ -351,6 +355,8 @@ function account(){
     <form id="profform" class="auth-f" novalidate>
       <label>Name<input name="name" value="${esc(USER.name)}" autocomplete="name" required maxlength="60"></label>
       <label>School (optional)<input name="school" value="${esc(USER.school||'')}" autocomplete="organization" maxlength="80"></label>
+      <fieldset class="subjpick"><legend>My subjects</legend><div class="sub" style="margin-bottom:6px">Pick what you study. Home, Roadmap, Schedule and progress will show only these. Leave all unticked to see every subject.</div>
+        ${SUBJECTS.map(s=>`<label class="chk"><input type="checkbox" name="subjects" value="${s.id}" ${(USER.subjects||[]).includes(s.id)?'checked':''}>${s.name}</label>`).join('')}</fieldset>
       <label>Target in boards, % (optional)<input name="target" type="number" inputmode="numeric" min="0" max="100" step="1" value="${USER.target==null?'':USER.target}"></label>
       <div class="err" id="profmsg" role="status"></div><button class="btn" type="submit">Save profile</button></form></section>
     <section class="auth glass"><h2>Sign-in methods</h2>
@@ -403,7 +409,7 @@ document.addEventListener('click',async e=>{const t=e.target;
   }});
 const FORMS={authform:'autherr',profform:'profmsg',pwform:'pwmsg'};
 document.addEventListener('submit',async e=>{const id=e.target.id;if(!FORMS[id])return;e.preventDefault();
-  const f=Object.fromEntries(new FormData(e.target)),b=e.target.querySelector('button[type=submit]');say(FORMS[id],'');b.disabled=true;
+  const fd=new FormData(e.target),f=Object.fromEntries(fd);if(id==='profform')f.subjects=fd.getAll('subjects');const b=e.target.querySelector('button[type=submit]');say(FORMS[id],'');b.disabled=true;
   try{
     if(id==='authform'){const j=await api(authMode==='signup'?'/signup':'/login',{method:'POST',body:JSON.stringify(f)});TOKEN=j.token;USER=j.user;store();applyServer(j.progress);location.hash='#home';route()}
     else if(id==='profform'){const j=await api('/profile',{method:'PUT',body:JSON.stringify(f)});USER=j.user;store();route();say('profmsg','Profile saved ✓',1)}
@@ -411,11 +417,11 @@ document.addEventListener('submit',async e=>{const id=e.target.id;if(!FORMS[id])
   }catch(x){say(FORMS[id],x.status?x.message:'Cannot reach the server. Check your connection.');b.disabled=false}});
 
 /* ---------- router ---------- */
-const NAV=[['home','Home'],['schedule','Schedule'],...SUBJECTS.map(s=>[s.id,s.name==='Information Technology'?'IT':s.name==='Mathematics'?'Maths':s.name]),['roadmap','Roadmap'],['question-bank','Question bank']];
+const navList=()=>[['home','Home'],['schedule','Schedule'],...mine().map(s=>[s.id,s.name==='Information Technology'?'IT':s.name==='Mathematics'?'Maths':s.name]),['roadmap','Roadmap'],['question-bank','Question bank']];
 function route(){
   const h=(location.hash||'#home').slice(1);
   const s=SUBJECTS.find(x=>x.id===h);
-  document.getElementById('nav').innerHTML=NAV.map(([id,l])=>`<a href="#${id}" ${id===h||(!NAV.some(n=>n[0]===h)&&h!=='account'&&id==='home')?'aria-current="page"':''}>${l}</a>`).join('');
+  const NAV=navList();document.getElementById('nav').innerHTML=NAV.map(([id,l])=>`<a href="#${id}" ${id===h||(!NAV.some(n=>n[0]===h)&&h!=='account'&&id==='home')?'aria-current="page"':''}>${l}</a>`).join('');
   document.getElementById('view').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">${s?subject(s):h==='roadmap'?roadmap():h==='question-bank'?qbank():h==='schedule'?schedule():h==='account'?account():home()}</div>`;
   renderTabs(h);updateAcct();renderGoogle();const ex=document.getElementById('exam');if(ex)ex.onchange=e=>{S.exam=e.target.value;save();route()};
 }

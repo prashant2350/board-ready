@@ -25,6 +25,7 @@ const User = mongoose.model('User', new mongoose.Schema({
   picture:  { type: String, default: '' },
   school:   { type: String, default: '', trim: true, maxlength: 80 },
   target:   { type: Number, default: null, min: 0, max: 100 },
+  subjects: { type: [String], default: [] },
   progress: { type: String, default: '{}' },
   exam:     { type: String, default: '' }
 }, { timestamps: true }));
@@ -42,7 +43,8 @@ app.use('/api', async (req, res, next) => {
 });
 
 const sign = u => jwt.sign({ id: u.id }, JWT_SECRET, { expiresIn: '60d' });
-const view = u => ({ name: u.name, email: u.email, picture: u.picture || '', school: u.school || '', target: u.target ?? null, hasPassword: !!u.password, hasGoogle: !!u.googleId });
+const SUBJECT_IDS = ['hindi', 'english', 'maths', 'science', 'it', 'sst'];
+const view = u => ({ subjects: u.subjects || [], name: u.name, email: u.email, picture: u.picture || '', school: u.school || '', target: u.target ?? null, hasPassword: !!u.password, hasGoogle: !!u.googleId });
 const prog = u => ({ done: JSON.parse(u.progress || '{}'), exam: u.exam });
 
 const authLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, message: { error: 'Too many attempts. Try again in a few minutes.' } });
@@ -136,7 +138,10 @@ app.put('/api/profile', auth, async (req, res) => {
       target = Number(target);
       if (!Number.isInteger(target) || target < 0 || target > 100) return res.status(400).json({ error: 'Target must be a whole number from 0 to 100.' });
     }
+    // subjects: list of subject ids the student studies; empty = all six
+    // only touched when the client actually sends it, so an old cached page can never blank a saved choice
     Object.assign(req.user, { name: name.slice(0, 60), school, target });
+    if (Array.isArray(req.body.subjects)) req.user.subjects = [...new Set(req.body.subjects.map(String).filter(s => SUBJECT_IDS.includes(s)))];
     await req.user.save();
     res.json({ user: view(req.user) });
   } catch (e) { fail(res, e); }
